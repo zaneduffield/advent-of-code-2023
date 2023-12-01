@@ -1,6 +1,6 @@
 use std::time::Instant;
 
-use advent_of_code_2022::*;
+use advent_of_code_2023::*;
 
 #[cfg(feature = "io")]
 macro_rules! input_str {
@@ -46,6 +46,7 @@ macro_rules! run_day {
 
 pub fn main() {
     let instant = Instant::now();
+    run_day!(day_01, "1");
 
     println!("done in {:?}", instant.elapsed());
 }
