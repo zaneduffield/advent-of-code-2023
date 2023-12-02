@@ -1,5 +1,3 @@
-use nom::AsChar;
-
 const DIGIT_WORDS: [&'static str; 9] = [
     "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
 ];
@@ -14,7 +12,7 @@ fn solve(input: &str, f: impl Fn(&str) -> (u32, u32)) -> u32 {
 
 fn part_1_next_digit(line: impl IntoIterator<Item = u8>) -> u8 {
     line.into_iter()
-        .filter(|b| b.is_dec_digit())
+        .filter(|b| b.is_ascii_digit())
         .map(|b| b - b'0')
         .next()
         .expect("no digit found in line")
@@ -35,7 +33,7 @@ pub fn part_1(input: &str) -> u32 {
 fn next_digit_part_2(line: &str, range: impl IntoIterator<Item = usize>) -> Option<u32> {
     range.into_iter().find_map(|i| {
         let byte = line.as_bytes()[i];
-        if byte.is_dec_digit() {
+        if byte.is_ascii_digit() {
             Some((byte - b'0') as u32)
         } else {
             DIGIT_WORDS
