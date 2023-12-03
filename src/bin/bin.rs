@@ -48,6 +48,7 @@ pub fn main() {
     let instant = Instant::now();
     run_day!(day_01, "1");
     run_day_with_generator!(day_02, "2");
+    run_day!(day_03, "3");
 
     println!("done in {:?}", instant.elapsed());
 }
