@@ -1,6 +1,6 @@
 use nom::{
     bytes::complete::tag,
-    character::complete::{char, digit1, newline, space0, space1, u8},
+    character::complete::{char, digit1, line_ending, space0, space1, u8},
     multi::separated_list0,
     sequence::tuple,
     Parser,
@@ -20,7 +20,7 @@ pub type IResult<'a, T> = nom::IResult<&'a str, T>;
 #[aoc_generator(day4)]
 pub fn input_generator(input: &str) -> Input {
     let cards: IResult<Vec<Card>> = separated_list0(
-        newline,
+        line_ending,
         tuple((
             tuple((tag("Card"), space1, digit1, tag(":"), space0)),
             separated_list0(space1, u8),
