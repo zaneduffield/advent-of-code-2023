@@ -1,10 +1,8 @@
+use itertools::Itertools;
 use nom::{
-    bytes::complete::{tag, take_till, take_until},
-    character::{
-        complete::{char, line_ending, space1, u64},
-        is_newline,
-    },
-    multi::{count, many1, separated_list0},
+    bytes::complete::{tag, take_till},
+    character::complete::{char, line_ending, space1, u64},
+    multi::{many1, separated_list0},
     sequence::{preceded, tuple},
     Parser,
 };
@@ -62,14 +60,13 @@ pub fn part_1(input: &Input) -> u64 {
         .map(|&seed| {
             input.maps.iter().fold(seed, |val, map| {
                 map.iter()
-                    .filter_map(|conv| {
+                    .find_map(|conv| {
                         if (val >= conv.source_start) && (val < conv.source_start + conv.len) {
                             Some(conv.dest_start + val - conv.source_start)
                         } else {
                             None
                         }
                     })
-                    .next()
                     .unwrap_or(val)
             })
         })
@@ -79,7 +76,61 @@ pub fn part_1(input: &Input) -> u64 {
 
 #[aoc(day5, part2)]
 pub fn part_2(input: &Input) -> u64 {
-    0
+    let mut ranges: Vec<(u64, u64)> = vec![];
+    let mut next_ranges: Vec<(u64, u64)> = vec![];
+
+    input
+        .seeds
+        .iter()
+        .tuples()
+        .map(|(&start, &len)| {
+            ranges.clear();
+            ranges.push((start, len));
+            next_ranges.clear();
+
+            input.maps.iter().for_each(|map| {
+                map.iter().for_each(|conv| {
+                    let mut i = 0;
+                    while let Some((start, len)) = ranges.get_mut(i) {
+                        i += 1;
+                        let conv_end = conv.source_start + conv.len;
+                        let end = *start + *len;
+
+                        if *start >= conv.source_start && conv_end > *start {
+                            //    [----  ]
+                            // [       ]
+                            //    [-]
+                            // [      ]
+                            next_ranges.push((
+                                conv.dest_start + *start - conv.source_start,
+                                (conv_end - *start).min(*len),
+                            ));
+
+                            *start = end.min(conv_end);
+                            *len = end.checked_sub(*start).unwrap_or(0);
+                        } else if *start < conv.source_start && conv.source_start < end {
+                            // [   ----]
+                            //     [
+                            next_ranges.push((conv.dest_start, end - conv.source_start));
+
+                            *len = conv.source_start - *start;
+                            if conv_end < end {
+                                ranges.push((conv.source_start, end - conv_end));
+                            }
+                        }
+                    }
+                });
+
+                next_ranges.extend(ranges.iter().filter(|(_, len)| *len != 0));
+                std::mem::swap(&mut ranges, &mut next_ranges);
+                next_ranges.clear();
+            });
+
+            ranges.iter().map(|(start, _)| *start).min()
+        })
+        .flatten()
+        .min()
+        .expect("no mappings")
 }
 
 #[cfg(test)]
@@ -126,6 +177,6 @@ mod tests {
             "
         });
         assert_eq!(part_1(&input), 35);
-        // assert_eq!(part_2(&input),);
+        assert_eq!(part_2(&input), 46);
     }
 }
