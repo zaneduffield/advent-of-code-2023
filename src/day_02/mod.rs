@@ -27,9 +27,9 @@ pub type IResult<'a, T> = nom::IResult<&'a [u8], T>;
 #[aoc_generator(day2)]
 pub fn input_generator(input: &str) -> Input {
     enum Cols {
-        RED,
-        GREEN,
-        BLUE,
+        Red,
+        Green,
+        Blue,
     }
 
     let games: IResult<Vec<Game>> = separated_list0(
@@ -45,9 +45,9 @@ pub fn input_generator(input: &str) -> Input {
                         u8,
                         space1,
                         alt((
-                            tag("red").map(|_| Cols::RED),
-                            tag("green").map(|_| Cols::GREEN),
-                            tag("blue").map(|_| Cols::BLUE),
+                            tag("red").map(|_| Cols::Red),
+                            tag("green").map(|_| Cols::Green),
+                            tag("blue").map(|_| Cols::Blue),
                         )),
                     )),
                 )
@@ -60,9 +60,9 @@ pub fn input_generator(input: &str) -> Input {
                         },
                         |mut draw, (_, count, _, col)| {
                             match col {
-                                Cols::RED => draw.red += count,
-                                Cols::GREEN => draw.green += count,
-                                Cols::BLUE => draw.blue += count,
+                                Cols::Red => draw.red += count,
+                                Cols::Green => draw.green += count,
+                                Cols::Blue => draw.blue += count,
                             };
                             draw
                         },

@@ -83,7 +83,7 @@ pub fn part_2(input: &Input) -> u64 {
         .seeds
         .iter()
         .tuples()
-        .map(|(&start, &len)| {
+        .filter_map(|(&start, &len)| {
             ranges.clear();
             ranges.push((start, len));
             next_ranges.clear();
@@ -107,7 +107,7 @@ pub fn part_2(input: &Input) -> u64 {
                             ));
 
                             *start = end.min(conv_end);
-                            *len = end.checked_sub(*start).unwrap_or(0);
+                            *len = end.saturating_sub(*start);
                         } else if *start < conv.source_start && conv.source_start < end {
                             // [   ----]
                             //     [
@@ -128,7 +128,6 @@ pub fn part_2(input: &Input) -> u64 {
 
             ranges.iter().map(|(start, _)| *start).min()
         })
-        .flatten()
         .min()
         .expect("no mappings")
 }
