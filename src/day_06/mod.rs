@@ -76,9 +76,8 @@ pub fn part_2(input: &Input) -> u64 {
 }
 
 fn merge_nums(nums: &[u64]) -> u64 {
-    nums.iter().fold(0, |sum, next| {
-        sum * 10_u64.pow(1 + next.ilog10()) + *next as u64
-    })
+    nums.iter()
+        .fold(0, |sum, next| sum * 10_u64.pow(1 + next.ilog10()) + *next)
 }
 
 #[cfg(test)]

@@ -1,4 +1,4 @@
-const DIGIT_WORDS: [&'static str; 9] = [
+const DIGIT_WORDS: [&str; 9] = [
     "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
 ];
 
@@ -73,7 +73,7 @@ mod tests {
             treb7uchet
             "
         };
-        assert_eq!(part_1(&input1), 142);
+        assert_eq!(part_1(input1), 142);
 
         let input2 = indoc! {
             "
@@ -86,6 +86,6 @@ mod tests {
             7pqrstsixteen
             "
         };
-        assert_eq!(part_2(&input2), 281);
+        assert_eq!(part_2(input2), 281);
     }
 }

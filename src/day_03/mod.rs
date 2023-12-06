@@ -31,9 +31,7 @@ impl<'a> Iterator for LineIterator<'a> {
             self.mid = self.tail;
             self.tail = self.lines.next();
 
-            if self.head.is_none() {
-                return None;
-            }
+            self.head?;
         }
 
         Some((self.head, self.mid, self.tail))
@@ -54,7 +52,7 @@ fn parse_num_at(line: &str, pos: usize) -> u32 {
     line.bytes()
         .skip(pos)
         .take_while(|b| b.is_ascii_digit())
-        .fold(0, |sum, digit| sum as u32 * 10 + (digit - b'0') as u32)
+        .fold(0, |sum, digit| sum * 10 + (digit - b'0') as u32)
 }
 
 fn nums_at_nbours(line: &str, i: usize) -> [Option<u32>; 3] {
@@ -66,10 +64,8 @@ fn nums_at_nbours(line: &str, i: usize) -> [Option<u32>; 3] {
         return out;
     }
 
-    if i > 0 {
-        if matches!(line.as_bytes().get(i - 1), Some(b) if b.is_ascii_digit()) {
-            out[0] = Some(parse_num_at(line, i - 1));
-        }
+    if i > 0 && matches!(line.as_bytes().get(i - 1), Some(b) if b.is_ascii_digit()) {
+        out[0] = Some(parse_num_at(line, i - 1));
     }
     if matches!(line.as_bytes().get(i + 1), Some(b) if b.is_ascii_digit()) {
         out[2] = Some(parse_num_at(line, i + 1));
@@ -149,7 +145,7 @@ mod tests {
             .664.598..
             "
         };
-        assert_eq!(part_1(&input), 4361);
-        assert_eq!(part_2(&input), 467835);
+        assert_eq!(part_1(input), 4361);
+        assert_eq!(part_2(input), 467835);
     }
 }
