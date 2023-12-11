@@ -99,7 +99,7 @@ pub fn input_generator(input: &str) -> Input {
 }
 
 #[aoc(day8, part1)]
-pub fn part_1(input: &Input) -> u32 {
+pub fn part_1(input: &Input) -> u64 {
     let mut id = input.init.expect("starting element not found");
     let goal = input.goal.expect("goal element not found");
     let mut steps = 0;
@@ -112,7 +112,7 @@ pub fn part_1(input: &Input) -> u32 {
         steps += 1;
     }
 
-    steps as u32
+    steps as u64
 }
 
 #[derive(Debug)]
@@ -124,7 +124,7 @@ struct Cycle {
 }
 
 #[aoc(day8, part2)]
-pub fn part_2(input: &Input) -> u32 {
+pub fn part_2(input: &Input) -> u64 {
     // idea: anayse every starting point and compute its cycle (when it starts, how long it goes for, what positions along its path it is on a finishing position)
     // input.starting_mask.iter().enumerate().filter(|(_, b)| **b).map(|(id, _)| )
 
@@ -164,14 +164,16 @@ pub fn part_2(input: &Input) -> u32 {
         eprintln!("{cycle:?}")
     }
 
-    let common_start = cycles.iter().map(|c| c.start_offset).max().unwrap();
+    // stupid lcm answer is somehow right for my input, but it doesn't generalise
+    // cycles.iter().map(|c| c.start_offset + c.end_offsets[0]).reduce(num::integer::lcm).unwrap() as u64
+
     let best_cycle_to_iter_idx = cycles
         .iter()
         .position_max_by_key(|c| c.period / c.end_offsets.len())
         .unwrap();
     let best_cycle_to_iter = cycles.swap_remove(best_cycle_to_iter_idx);
 
-    let mut steps = common_start;
+    let mut steps = best_cycle_to_iter.start_offset;
     let mut loops = 0;
     loop {
         if let Some(solution) = best_cycle_to_iter.end_offsets.iter().find(|end| {
@@ -182,7 +184,7 @@ pub fn part_2(input: &Input) -> u32 {
                     .any(|end| (steps_to_end - c.start_offset) % c.period == *end)
             })
         }) {
-            return (steps + solution) as u32;
+            return (steps + solution) as u64;
         }
         steps += best_cycle_to_iter.period;
         loops += 1;
@@ -290,5 +292,11 @@ mod tests {
             "
         });
         assert_eq!(part_2(&input3), 6);
+    }
+
+    #[test]
+    fn test_my_input() {
+        let input = input_generator(include_str!("../../input/2023/day8.txt"));
+        assert_eq!(part_2(&input), 16342438708751);
     }
 }
