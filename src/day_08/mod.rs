@@ -1,15 +1,12 @@
-use itertools::Itertools;
 use nom::{
     bytes::complete::tag,
-    character::complete::{alpha1, alphanumeric1, line_ending, multispace1},
+    character::complete::{alphanumeric1, line_ending, multispace1},
     combinator::fail,
     multi::{many1, separated_list0},
     sequence::tuple,
     Parser,
 };
-use num::complex::ComplexFloat;
-use ring_algorithm::chinese_remainder_theorem;
-use rustc_hash::{FxHashMap, FxHashSet};
+use rustc_hash::FxHashMap;
 
 pub struct Input {
     init: Option<Id>,
@@ -125,11 +122,8 @@ struct Cycle {
 
 #[aoc(day8, part2)]
 pub fn part_2(input: &Input) -> u64 {
-    // idea: anayse every starting point and compute its cycle (when it starts, how long it goes for, what positions along its path it is on a finishing position)
-    // input.starting_mask.iter().enumerate().filter(|(_, b)| **b).map(|(id, _)| )
-
     let mut cycles = vec![];
-    for (id, _) in input.starting_mask.iter().enumerate().filter(|(i, b)| **b) {
+    for (id, _) in input.starting_mask.iter().enumerate().filter(|(_, b)| **b) {
         let mut ends = vec![];
         let mut steps = 0;
         let mut id = id as u16;
@@ -160,6 +154,7 @@ pub fn part_2(input: &Input) -> u64 {
         }
     }
 
+    #[cfg(debug_assertions)]
     for cycle in &cycles {
         eprintln!("{cycle:?}")
     }
@@ -167,82 +162,41 @@ pub fn part_2(input: &Input) -> u64 {
     // stupid lcm answer is somehow right for my input, but it doesn't generalise
     // cycles.iter().map(|c| c.start_offset + c.end_offsets[0]).reduce(num::integer::lcm).unwrap() as u64
 
-    let best_cycle_to_iter_idx = cycles
-        .iter()
-        .position_max_by_key(|c| c.period / c.end_offsets.len())
-        .unwrap();
-    let best_cycle_to_iter = cycles.swap_remove(best_cycle_to_iter_idx);
-
-    let mut steps = best_cycle_to_iter.start_offset;
-    let mut loops = 0;
-    loop {
-        if let Some(solution) = best_cycle_to_iter.end_offsets.iter().find(|end| {
-            let steps_to_end = steps + **end;
-            cycles.iter().all(|c| {
-                c.end_offsets
-                    .iter()
-                    .any(|end| (steps_to_end - c.start_offset) % c.period == *end)
-            })
-        }) {
-            return (steps + solution) as u64;
+    let starting_offset = cycles.iter().map(|cycle| cycle.start_offset).max().unwrap();
+    for cycle in &mut cycles {
+        let cycle_starting_offset = starting_offset - cycle.start_offset;
+        let offset_in_cycle = cycle_starting_offset % cycle.period;
+        for goal_offset in &mut cycle.end_offsets {
+            *goal_offset = (*goal_offset + cycle.period - offset_in_cycle) % cycle.period;
         }
-        steps += best_cycle_to_iter.period;
-        loops += 1;
-        if loops % (2 << 26) == 0 {
-            eprintln!("{steps}");
-        }
-    }
-}
-
-fn egcd_(a: usize, b: usize) -> (usize, usize, usize) {
-    if a == 0 {
-        (b, 0, 1)
-    } else {
-        let (g, x, y) = egcd_(b % a, a);
-        (g, y - (b / a) * x, x)
-    }
-}
-
-fn crt_(remo: &[(usize, usize)]) -> usize {
-    let prod = remo.iter().map(|n| n.1).product::<usize>();
-    remo.iter()
-        .map(|(re, mo)| {
-            let p = prod / mo;
-            re * ((egcd_(p, *mo).1 % mo + mo) % mo) * p
-        })
-        .sum::<usize>()
-        % prod
-}
-
-fn egcd(a: i64, b: i64) -> (i64, i64, i64) {
-    if a == 0 {
-        (b, 0, 1)
-    } else {
-        let (g, x, y) = egcd(b % a, a);
-        (g, y - (b / a) * x, x)
-    }
-}
-
-fn mod_inv(x: i64, n: i64) -> Option<i64> {
-    let (g, x, _) = egcd(x, n);
-    if g == 1 {
-        Some((x % n + n) % n)
-    } else {
-        None
-    }
-}
-
-fn chinese_remainder(residues: &[i64], modulii: &[i64]) -> Option<i64> {
-    let prod = modulii.iter().product::<i64>();
-
-    let mut sum = 0;
-
-    for (&residue, &modulus) in residues.iter().zip(modulii) {
-        let p = prod / modulus;
-        sum += residue * mod_inv(p, modulus)? * p
+        cycle.start_offset = 0;
     }
 
-    Some(sum % prod)
+    let mut new_offsets = Vec::new();
+
+    // TODO understand and rewrite / convert to CRT
+    let full_cycle =
+        cycles
+            .into_iter()
+            .fold((1, vec![0]), |(acc_period, mut acc_offsets), cycle| {
+                let mut pos = 0;
+                let cycle_period = cycle.period;
+                new_offsets.clear();
+                loop {
+                    for &i in &acc_offsets {
+                        if cycle.end_offsets.contains(&((pos + i) % cycle_period)) {
+                            new_offsets.push(pos + i);
+                        }
+                    }
+                    pos += acc_period;
+                    if pos % cycle_period == 0 {
+                        std::mem::swap(&mut new_offsets, &mut acc_offsets);
+                        break (pos, acc_offsets);
+                    }
+                }
+            });
+
+    (starting_offset + full_cycle.1[0]) as u64
 }
 
 #[cfg(test)]
