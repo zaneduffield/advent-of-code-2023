@@ -1,17 +1,55 @@
 use itertools::Itertools;
 use nom::{
-    character::complete::{i64, line_ending, space1},
-    multi::{separated_list0, separated_list1},
+    character::complete::{i64, space1},
+    combinator::opt,
+    sequence::preceded,
 };
 
 pub struct Input {
-    line_row_diffs: Vec<Vec<Vec<i64>>>,
+    solutions: (i64, i64),
 }
 
 fn parse_input(input: &str) -> nom::IResult<&str, Input> {
-    let (input, lines) = separated_list0(line_ending, separated_list1(space1, i64))(input)?;
-    let line_row_diffs = lines.iter().map(|seq| line_row_diffs(seq)).collect();
-    Ok((input, Input { line_row_diffs }))
+    let mut row = vec![];
+    let mut next_row = vec![];
+    let mut heads = vec![];
+
+    let solutions = input
+        .lines()
+        .map(|mut line| {
+            row.clear();
+            while let Ok((next_line, num)) = parse_int(line) {
+                line = next_line;
+                row.push(num);
+            }
+
+            let mut tail_sum = 0;
+            heads.clear();
+
+            loop {
+                tail_sum += row.last().unwrap_or(&0);
+                heads.push(row[0]);
+
+                next_row.clear();
+                next_row.extend(row.iter().tuple_windows().map(|(a, b)| b - a));
+
+                std::mem::swap(&mut row, &mut next_row);
+                if row.iter().all(|i| *i == 0) {
+                    break;
+                }
+            }
+
+            let prev = heads.iter().rev().fold(0, |acc, next| next - acc);
+
+            (prev, tail_sum)
+        })
+        .fold((0, 0), |acc, next| (acc.0 + next.0, acc.1 + next.1));
+
+    Ok(("", Input { solutions }))
+}
+
+fn parse_int(input: &str) -> nom::IResult<&str, i64> {
+    preceded(opt(space1), i64)(input)
 }
 
 #[aoc_generator(day9)]
@@ -21,49 +59,14 @@ pub fn input_generator(input: &str) -> Input {
     result
 }
 
-fn line_row_diffs(seq: &[i64]) -> Vec<Vec<i64>> {
-    // we could probably store all these row differences in one flat vector for performance
-    // but that would be a pain and this is fast enough already
-    let mut row_diffs = vec![seq.to_vec()];
-    loop {
-        row_diffs.push(
-            row_diffs
-                .last()
-                .unwrap()
-                .iter()
-                .tuple_windows()
-                .map(|(a, b)| b - a)
-                .collect(),
-        );
-        if row_diffs.last().unwrap().iter().all(|i| *i == 0) {
-            break;
-        }
-    }
-    row_diffs
-}
-
 #[aoc(day9, part1)]
 pub fn part_1(input: &Input) -> i64 {
-    input
-        .line_row_diffs
-        .iter()
-        .map(|row_diffs| row_diffs.iter().flat_map(|row| row.last()).sum::<i64>())
-        .sum()
+    input.solutions.1
 }
 
 #[aoc(day9, part2)]
 pub fn part_2(input: &Input) -> i64 {
-    input
-        .line_row_diffs
-        .iter()
-        .map(|row_diffs| {
-            row_diffs
-                .iter()
-                .rev()
-                .skip(1)
-                .fold(0, |acc, row| row[0] - acc)
-        })
-        .sum()
+    input.solutions.0
 }
 
 #[cfg(test)]
