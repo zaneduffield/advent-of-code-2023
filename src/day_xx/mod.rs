@@ -49,4 +49,11 @@ mod tests {
         assert_eq!(part_1(&input), );
         // assert_eq!(part_2(&input),);
     }
+
+    #[test]
+    fn test_my_input() {
+        let input = input_generator(include_str!("../../input/2023/dayxx.txt"));
+        // assert_eq!(part_1(&input), );
+        // assert_eq!(part_2(&input),);
+    }
 }
