@@ -1,24 +1,23 @@
 use itertools::Itertools;
-use num::Integer;
 
 pub struct Input {
-    data: Vec<u8>,
-    width: usize,
-    height: usize,
+    points: Vec<(u64, u64)>,
 }
 
 fn parse_input(input: &str) -> nom::IResult<&str, Input> {
-    let width = input.bytes().position(|b| b == b'\n').unwrap() + 1;
-    let height = input.len() / width;
+    let points = input
+        .lines()
+        .enumerate()
+        .fold(vec![], |mut points, (row, line)| {
+            points.extend(
+                line.bytes()
+                    .enumerate()
+                    .filter_map(|(col, b)| (b == b'#').then_some((row as u64, col as u64))),
+            );
+            points
+        });
 
-    Ok((
-        "",
-        Input {
-            data: input.as_bytes().to_owned(),
-            width,
-            height,
-        },
-    ))
+    Ok(("", Input { points }))
 }
 
 #[aoc_generator(day11)]
@@ -29,57 +28,36 @@ pub fn input_generator(input: &str) -> Input {
 }
 
 fn solve(input: &Input, growth: u64) -> u64 {
-    let expand_count_hor = {
-        let mut grid = vec![0; input.data.len()];
-        'outer: for j in 0..input.height {
-            for i in 0..input.width {
-                let idx = j * input.width + i;
-                if input.data[idx] == b'#' {
-                    continue 'outer;
-                }
-            }
-            for i in 0..input.width {
-                // note rotation of grid for linear access later
-                let idx = i * input.height + j;
-                grid[idx] = growth;
-            }
-        }
-        grid
-    };
-    let expand_count_ver = {
-        let mut grid = vec![0; input.data.len()];
-        'outer: for i in 0..input.width {
-            for j in 0..input.height {
-                let idx = j * input.width + i;
-                if input.data[idx] == b'#' {
-                    continue 'outer;
-                }
-            }
-            for j in 0..input.height {
-                let idx = j * input.width + i;
-                grid[idx] = growth;
-            }
-        }
-        grid
-    };
+    let mut points = input.points.clone();
 
-    let galaxies = input.data.iter().positions(|b| *b == b'#').collect_vec();
+    {
+        let mut expansion = 0;
+        let mut last_0 = 0;
+        for p in &mut points {
+            if p.0 != last_0 {
+                expansion += (p.0 - last_0 - 1) * growth;
+                last_0 = p.0;
+            }
+            p.0 += expansion;
+        }
+    }
+
+    points.sort_by_key(|p| p.1);
+    {
+        let mut expansion = 0;
+        let mut last_1 = 0;
+        for p in &mut points {
+            if p.1 != last_1 {
+                expansion += (p.1 - last_1 - 1) * growth;
+                last_1 = p.1;
+            }
+            p.1 += expansion;
+        }
+    }
+
     let mut sum = 0;
-    for (from, to) in galaxies.iter().tuple_combinations() {
-        let from_pos = from.div_rem(&input.width);
-        let to_pos = to.div_rem(&input.width);
-        let steps_ver =
-            (from_pos.0.min(to_pos.0)..from_pos.0.max(to_pos.0)).fold(0, |steps, pos| {
-                // note rotation of grid
-                steps + 1 + expand_count_hor[from_pos.1 * input.height + (pos + 1)]
-            });
-        let steps_hor = (from_pos.1.min(to_pos.1)..from_pos.1.max(to_pos.1))
-            .fold(0, |steps, pos| {
-                steps + 1 + expand_count_ver[from_pos.0 * input.width + (pos + 1)]
-            });
-
-        let steps = steps_hor + steps_ver;
-        sum += steps;
+    for (p1, p2) in points.iter().tuple_combinations() {
+        sum += p1.0.abs_diff(p2.0) + p1.1.abs_diff(p2.1);
     }
 
     sum
