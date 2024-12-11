@@ -44,7 +44,6 @@ pub fn parse_input(input: &str) -> nom::IResult<&str, Input> {
     Ok((input, Input { seeds, maps }))
 }
 
-#[aoc_generator(day5)]
 pub fn input_generator(input: &str) -> Input {
     let res = parse_input(input);
     let (remaining, out) = res.expect("failed to parse");
@@ -52,7 +51,6 @@ pub fn input_generator(input: &str) -> Input {
     out
 }
 
-#[aoc(day5, part1)]
 pub fn part_1(input: &Input) -> u64 {
     input
         .seeds
@@ -74,7 +72,6 @@ pub fn part_1(input: &Input) -> u64 {
         .expect("no mappings")
 }
 
-#[aoc(day5, part2)]
 pub fn part_2(input: &Input) -> u64 {
     let mut ranges: Vec<(u64, u64)> = vec![];
     let mut next_ranges: Vec<(u64, u64)> = vec![];

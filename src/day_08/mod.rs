@@ -88,14 +88,12 @@ fn parse_input(input: &str) -> nom::IResult<&str, Input> {
     ))
 }
 
-#[aoc_generator(day8)]
 pub fn input_generator(input: &str) -> Input {
     let (remaining, result) = parse_input(input).expect("failed to parse input");
     assert!(remaining.trim().is_empty(), "failed to parse entire input");
     result
 }
 
-#[aoc(day8, part1)]
 pub fn part_1(input: &Input) -> u64 {
     let mut id = input.init.expect("starting element not found");
     let goal = input.goal.expect("goal element not found");
@@ -120,7 +118,6 @@ struct Cycle {
     end_offsets: Vec<usize>,
 }
 
-#[aoc(day8, part2)]
 pub fn part_2(input: &Input) -> u64 {
     let mut cycles = vec![];
     for (id, _) in input.starting_mask.iter().enumerate().filter(|(_, b)| **b) {

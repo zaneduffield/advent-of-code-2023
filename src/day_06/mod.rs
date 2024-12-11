@@ -31,14 +31,12 @@ fn parse_input(input: &str) -> nom::IResult<&str, Input> {
     .parse(input)
 }
 
-#[aoc_generator(day6)]
 pub fn input_generator(input: &str) -> Input {
     let (remaining, result) = parse_input(input).expect("failed to parse input");
     assert!(remaining.trim().is_empty(), "failed to parse entire input");
     result
 }
 
-#[aoc(day6, part1)]
 pub fn part_1(input: &Input) -> u64 {
     input
         .times
@@ -67,7 +65,6 @@ fn count_ways_to_win(time: u64, dist: u64) -> u64 {
     1 + ((right_root - 1f64).ceil() as u64).min(time) - ((left_root + 1f64).floor() as u64).max(0)
 }
 
-#[aoc(day6, part2)]
 pub fn part_2(input: &Input) -> u64 {
     let time = merge_nums(&input.times);
     let dist = merge_nums(&input.best_distances);

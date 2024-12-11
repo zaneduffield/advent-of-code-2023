@@ -25,7 +25,6 @@ fn part_1_digits(line: &str) -> (u32, u32) {
     )
 }
 
-#[aoc(day1, part1)]
 pub fn part_1(input: &str) -> u32 {
     solve(input, part_1_digits)
 }
@@ -53,7 +52,6 @@ fn part_2_digits(line: &str) -> (u32, u32) {
     )
 }
 
-#[aoc(day1, part2)]
 pub fn part_2(input: &str) -> u32 {
     solve(input, part_2_digits)
 }

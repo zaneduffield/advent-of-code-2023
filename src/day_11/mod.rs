@@ -20,7 +20,6 @@ fn parse_input(input: &str) -> nom::IResult<&str, Input> {
     Ok(("", Input { points }))
 }
 
-#[aoc_generator(day11)]
 pub fn input_generator(input: &str) -> Input {
     let (remaining, result) = parse_input(input).expect("failed to parse input");
     assert!(remaining.trim().is_empty(), "failed to parse entire input");
@@ -63,12 +62,10 @@ fn solve(input: &Input, growth: u64) -> u64 {
     sum
 }
 
-#[aoc(day11, part1)]
 pub fn part_1(input: &Input) -> u64 {
     solve(input, 1)
 }
 
-#[aoc(day11, part2)]
 pub fn part_2(input: &Input) -> u64 {
     solve(input, 1_000_000 - 1)
 }

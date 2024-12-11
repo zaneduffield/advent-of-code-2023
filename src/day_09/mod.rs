@@ -52,19 +52,16 @@ fn parse_int(input: &str) -> nom::IResult<&str, i64> {
     preceded(opt(space1), i64)(input)
 }
 
-#[aoc_generator(day9)]
 pub fn input_generator(input: &str) -> Input {
     let (remaining, result) = parse_input(input).expect("failed to parse input");
     assert!(remaining.trim().is_empty(), "failed to parse entire input");
     result
 }
 
-#[aoc(day9, part1)]
 pub fn part_1(input: &Input) -> i64 {
     input.solutions.1
 }
 
-#[aoc(day9, part2)]
 pub fn part_2(input: &Input) -> i64 {
     input.solutions.0
 }

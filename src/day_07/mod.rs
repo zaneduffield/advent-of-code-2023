@@ -36,7 +36,6 @@ fn parse_input(input: &str) -> nom::IResult<&str, Input> {
     Ok((input, Input { hands }))
 }
 
-#[aoc_generator(day7)]
 pub fn input_generator(input: &str) -> Input {
     let (remaining, result) = parse_input(input).expect("failed to parse input");
     assert!(remaining.trim().is_empty(), "failed to parse entire input");
@@ -241,7 +240,6 @@ fn compare(h1: &Hand, h2: &Hand) -> Ordering {
     eval1.cmp(&eval2).then_with(|| compare2(h1, h2))
 }
 
-#[aoc(day7, part1)]
 pub fn part_1(input: &Input) -> u32 {
     input
         .hands
@@ -259,7 +257,6 @@ fn compare_joker(h1: &Hand, h2: &Hand) -> Ordering {
     eval1.cmp(&eval2).then_with(|| compare2_joker(h1, h2))
 }
 
-#[aoc(day7, part2)]
 pub fn part_2(input: &Input) -> u32 {
     input
         .hands

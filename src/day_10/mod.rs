@@ -20,7 +20,6 @@ fn parse_input(input: &str) -> nom::IResult<&str, Input> {
     ))
 }
 
-#[aoc_generator(day10)]
 pub fn input_generator(input: &str) -> Input {
     let (remaining, result) = parse_input(input).expect("failed to parse input");
     assert!(remaining.trim().is_empty(), "failed to parse entire input");
@@ -126,12 +125,10 @@ fn find_cycle(input: &Input) -> (u8, Vec<usize>) {
     panic!("no solution found");
 }
 
-#[aoc(day10, part1)]
 pub fn part_1(input: &Input) -> usize {
     (find_cycle(input).1.len() + 1) / 2
 }
 
-#[aoc(day10, part2)]
 pub fn part_2(input: &Input) -> usize {
     let (starting_pipe, cycle) = find_cycle(input);
     let mut pipes = input.data.clone();

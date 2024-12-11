@@ -74,7 +74,6 @@ fn nums_at_nbours(line: &str, i: usize) -> [Option<u32>; 3] {
     out
 }
 
-#[aoc(day3, part1)]
 pub fn part_1(input: &str) -> u32 {
     let mut line_iter = LineIterator::new(input);
     let mut sum = 0;
@@ -95,7 +94,6 @@ pub fn part_1(input: &str) -> u32 {
     sum
 }
 
-#[aoc(day3, part2)]
 pub fn part_2(input: &str) -> u32 {
     let mut line_iter = LineIterator::new(input);
     let mut sum = 0;

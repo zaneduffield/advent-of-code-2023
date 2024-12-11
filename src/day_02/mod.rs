@@ -24,7 +24,6 @@ pub struct Draw {
 
 pub type IResult<'a, T> = nom::IResult<&'a [u8], T>;
 
-#[aoc_generator(day2)]
 pub fn input_generator(input: &str) -> Input {
     enum Cols {
         Red,
@@ -78,7 +77,6 @@ pub fn input_generator(input: &str) -> Input {
     Input { games }
 }
 
-#[aoc(day2, part1)]
 pub fn part_1(input: &Input) -> u32 {
     const RED: u8 = 12;
     const GREEN: u8 = 13;
@@ -96,7 +94,6 @@ pub fn part_1(input: &Input) -> u32 {
         .sum()
 }
 
-#[aoc(day2, part2)]
 pub fn part_2(input: &Input) -> u32 {
     input
         .games

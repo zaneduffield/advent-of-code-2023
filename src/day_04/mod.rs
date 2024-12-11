@@ -17,7 +17,6 @@ pub struct Card {
 
 pub type IResult<'a, T> = nom::IResult<&'a str, T>;
 
-#[aoc_generator(day4)]
 pub fn input_generator(input: &str) -> Input {
     let cards: IResult<Vec<Card>> = separated_list0(
         line_ending,
@@ -40,7 +39,6 @@ pub fn input_generator(input: &str) -> Input {
     Input { cards: cards.1 }
 }
 
-#[aoc(day4, part1)]
 pub fn part_1(input: &Input) -> u32 {
     input
         .cards
@@ -68,7 +66,6 @@ pub fn part_1(input: &Input) -> u32 {
         .sum()
 }
 
-#[aoc(day4, part2)]
 pub fn part_2(input: &Input) -> u32 {
     let mut counts = vec![1; input.cards.len()];
 
