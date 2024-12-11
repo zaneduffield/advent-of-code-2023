@@ -62,7 +62,7 @@ fn count_ways_to_win(time: u64, dist: u64) -> u64 {
     let left_root = (left_term as f64 + sqrt_discriminant) / (-2f64 * A as f64);
     let right_root = (left_term as f64 - sqrt_discriminant) / (-2f64 * A as f64);
 
-    1 + ((right_root - 1f64).ceil() as u64).min(time) - ((left_root + 1f64).floor() as u64).max(0)
+    1 + ((right_root - 1f64).ceil() as u64).min(time) - ((left_root + 1f64).floor() as u64)
 }
 
 pub fn part_2(input: &Input) -> u64 {

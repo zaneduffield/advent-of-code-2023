@@ -1,13 +1,10 @@
-use itertools::GroupingMap;
 use nom::{
     branch::alt,
-    bytes::complete::*,
     character::complete::*,
     multi::*,
-    sequence::{delimited, separated_pair, tuple},
+    sequence::separated_pair,
     Parser,
 };
-use num::complex::ComplexFloat;
 
 pub struct Input {
     records: Vec<Record>,
